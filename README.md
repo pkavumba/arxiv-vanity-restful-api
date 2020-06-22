@@ -1,16 +1,8 @@
-# arXiv Vanity
+# arXiv Vanity Restful API
 
-[arXiv Vanity](https://www.arxiv-vanity.com) renders papers from [arXiv](https://arxiv.org) as responsive web pages so you don't have to squint at a PDF.
+This is a restful api built on top of [arXiv Vanity](https://www.arxiv-vanity.com) that is designed to renders papers from [arXiv](https://arxiv.org) as responsive web pages so you don't have to squint at a PDF.
 
-It turns this sort of thing:
 
-<img src="docs/screenshot-pdf.png" width="600">
-
-Into this:
-
-<img src="docs/screenshot-screens.png">
-
-This is the web interface for viewing papers. The actual LaTeX to HTML conversion (the interesting bit) is done by [Engrafo](https://github.com/arxiv-vanity/engrafo).
 
 ## Running in development
 
@@ -57,8 +49,4 @@ ENGRAFO_IMAGE=engrafo-dev
 
 This project is configured with a dev container to get completions, etc inside VS Code. When VS Code opens, click "reopen in container" in the popup and it'll run the development environment inside the same container used by `docker-compose`.
 
-## Sponsors
 
-Thanks to our generous sponsors for supporting the development of arXiv Vanity! [Sponsor us to get your logo here.](https://www.patreon.com/arxivvanity)
-
-[<img src="arxiv_vanity/static/sponsor-yld.png" alt="YLD" width="250" />](https://www.yld.io/)
