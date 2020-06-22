@@ -7,7 +7,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import views as sitemap_views
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from django.views.generic.base import TemplateView, RedirectView
 from .feedback.views import submit_feedback
 from .papers.feeds import LatestPapersFeed
@@ -20,11 +20,19 @@ from .papers.views import (
     render_update_state,
     stats,
 )
+from .papers import api_views
 from .scraper.arxiv_ids import ARXIV_ID_PATTERN
 from .sitemaps import sitemaps
 
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+router.register("api/papers", api_views.PaperViewSet)
+
+
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
+    path("api-auth/", include("rest_framework.urls")),
     path("papers/", PaperListView.as_view(), name="paper_list"),
     path("papers/feed/", LatestPapersFeed(), name="paper_feed"),
     re_path(
@@ -68,6 +76,7 @@ urlpatterns = [
         name="django.contrib.sitemaps.views.sitemap",
     ),
 ]
+urlpatterns += router.urls
 
 # Serve uploaded files in development
 if settings.DEBUG and settings.MEDIA_URL:

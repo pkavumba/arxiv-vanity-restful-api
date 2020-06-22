@@ -20,3 +20,8 @@ pylint-django==2.0.13
 black==19.10b0
 randomcolor==0.4.4.5
 django-rangepaginator==1.2.0
+django-filter==2.2.0
+djangorestframework==3.10.2
+djangorestframework-api-key==2.0.0
+django-filter==2.2.0
+djangorestframework==3.10.2

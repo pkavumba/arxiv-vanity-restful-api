@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "arxiv_vanity.feedback",
     "arxiv_vanity.papers",
     "arxiv_vanity.scraper",
+    "rest_framework",
+    "rest_framework_api_key",
 ]
 
 MIDDLEWARE = [
@@ -244,3 +246,23 @@ PAPERS_MAX_RENDERS_RUNNING = env.int("PAPERS_MAX_RENDERS_RUNNING", default=100)
 PAPERS_MAX_RENDER_TIME_MINS = env.int("PAPERS_MAX_RENDER_TIME_MINS", default=10)
 
 SITEMAP_LIMIT = env.int("SITEMAP_LIMIT", default=45000)
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework_api_key.permissions.HasAPIKey",
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+}
+
+
+MANAGERS = env.list("ADMINS", default=[("admin", "")])
