@@ -64,7 +64,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "arxiv_vanity.urls"
 APPEND_SLASH = True
-//
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
