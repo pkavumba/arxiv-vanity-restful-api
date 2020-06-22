@@ -139,7 +139,7 @@ if not DEBUG:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "arxiv_vanity/static")]
 STATIC_ROOT = os.path.join(BASE_DIR, "arxiv_vanity/static_root")
-
+#
 # Uploaded files, including paper source and rendered articles
 MEDIA_USE_S3 = env.bool("MEDIA_USE_S3", default=False)
 if MEDIA_USE_S3:
