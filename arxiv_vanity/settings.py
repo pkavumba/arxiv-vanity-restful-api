@@ -64,7 +64,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "arxiv_vanity.urls"
 APPEND_SLASH = True
-#again
+# again
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -133,7 +133,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-
+#
 STATIC_URL = "/static/"
 if not DEBUG:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
