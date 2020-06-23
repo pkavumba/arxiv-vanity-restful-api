@@ -28,6 +28,7 @@ from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register("api/papers", api_views.PaperViewSet)
+router.register("api/renders", api_views.RenderViewSet)
 
 
 urlpatterns = [

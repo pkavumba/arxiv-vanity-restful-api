@@ -107,7 +107,7 @@ def render_paper(
     # If running on the local machine, we need to add the container to the same network
     # as the web app so it can call the callback
     if os.environ.get("DOCKER_HOST") == "unix:///var/run/docker.sock":
-        pass  # network = "arxiv-vanity_default"
+        network = "arxiv-vanity-restful-api_default"
 
     if extra_run_kwargs is None:
         extra_run_kwargs = {}
