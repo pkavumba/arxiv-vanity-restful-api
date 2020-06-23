@@ -26,6 +26,7 @@ def create_client():
         "base_url": os.environ.get("DOCKER_HOST"),
         "timeout": 15,  # wait a bit, but give up before 30s Heroku request timeout
     }
+    print(kwargs)
 
     if os.environ.get("DOCKER_TLS_VERIFY"):
         kwargs["tls"] = TLSConfig(
@@ -66,6 +67,7 @@ def render_paper(
     Render a source directory using Engrafo.
     """
     client = create_client()
+    print(client.info())
 
     renders_running = client.info()["ContainersRunning"]
     if renders_running >= settings.PAPERS_MAX_RENDERS_RUNNING:
@@ -105,10 +107,11 @@ def render_paper(
     # If running on the local machine, we need to add the container to the same network
     # as the web app so it can call the callback
     if os.environ.get("DOCKER_HOST") == "unix:///var/run/docker.sock":
-        network = "arxiv-vanity_default"
+        pass  # network = "arxiv-vanity_default"
 
     if extra_run_kwargs is None:
         extra_run_kwargs = {}
+
     return client.containers.run(
         settings.ENGRAFO_IMAGE,
         "sh -c "
