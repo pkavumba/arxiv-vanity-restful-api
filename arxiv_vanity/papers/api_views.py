@@ -2,12 +2,14 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework_api_key.permissions import HasAPIKey
 
+from django.template.loader import render_to_string
+
 from .serializers import PaperSerializer, RenderSerializer
 from .models import Paper, Render
 from .views import add_paper_cache_control, add_never_cache_headers
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404
@@ -21,6 +23,20 @@ from ..scraper.arxiv_ids import (
     ARXIV_VANITY_RE,
 )
 from ..scraper.query import PaperNotFoundError
+
+from rest_framework.exceptions import APIException
+
+
+class PaperIsNotRenderable(APIException):
+    status_code = 404
+    default_detail = "paper is unrenderable."
+    default_code = "paper_unrenderable"
+
+
+class TooManyRendersRunning(APIException):
+    status_code = 503
+    default_detail = "Service temporarily unavailable, try again later."
+    default_code = "service_unavailable"
 
 
 class PaperViewSet(viewsets.ReadOnlyModelViewSet):
@@ -36,7 +52,7 @@ class RenderViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Render.objects.all()
     serializer_class = RenderSerializer
 
-    @action(detail=True, renderer_classes=[TemplateHTMLRenderer])
+    @action(detail=True, renderer_classes=[JSONRenderer])
     def render(self, request, *args, **kwargs):
         force_render = "render" in request.GET
         arxiv_id = request.query_params.get(
@@ -64,46 +80,40 @@ class RenderViewSet(viewsets.ReadOnlyModelViewSet):
                 force_render=force_render
             )
         except PaperIsNotRenderableError:
-            res = Response(
-                {"paper": paper},
-                template_name="papers/api_paper_detail_not_renderable.html",
-                status=404,
+            rendered = render_to_string(
+                "papers/api_paper_detail_not_renderable.html", {"paper": paper}
             )
-            return add_paper_cache_control(res, request)
+            # res = raise(rendered)
+            raise PaperIsNotRenderable(
+                rendered
+            )  # add_paper_cache_control(res, request)
         except TooManyRendersRunningError:
-            res = Response(
-                {"paper": paper},
-                template_name="papers/api_paper_detail_too_many_renders.html",
-                status=503,
+            rendered = render_to_string(
+                "papers/api_paper_detail_too_many_renders.html", {"paper": paper}
             )
-            add_never_cache_headers(res)
-            return res
+            raise TooManyRendersRunning(rendered)  # res
 
         # Switch response based on state
         if render_to_display.state == Render.STATE_RUNNING:
-            res = Response(
+            rendered = render_to_string(
+                "papers/api_paper_detail_rendering.html",
                 {"paper": paper, "render": render_to_display},
-                template_name="papers/api_paper_detail_rendering.html",
-                status=503,
             )
-            add_never_cache_headers(res)
-            return res
+            return Response({"data": rendered})
 
         elif render_to_display.state == Render.STATE_FAILURE:
-            res = Response(
-                {"paper": paper},
-                template_name="papers/api_paper_detail_error.html",
-                status=500,
+            rendered = render_to_string(
+                "papers/api_paper_detail_error.html", {"paper": paper}
             )
-            return add_paper_cache_control(res, request)
+            return Response({"data": rendered})
 
         elif render_to_display.state == Render.STATE_SUCCESS:
             processed_render = render_to_display.get_processed_render()
-
-            res = Response(
+            rendered = render_to_string(
+                "papers/api_paper_detail.html",
                 {
                     "paper": paper,
-                    "render": render_to_display,
+                    "render_state": render_to_display.state,
                     "body": processed_render["body"],
                     "links": processed_render["links"],
                     "scripts": processed_render["scripts"],
@@ -111,9 +121,21 @@ class RenderViewSet(viewsets.ReadOnlyModelViewSet):
                     "abstract": processed_render["abstract"],
                     "first_image": processed_render["first_image"],
                 },
-                template_name="papers/api_paper_detail.html",
             )
-            return add_paper_cache_control(res, request)
+
+            return Response(
+                {
+                    "paper": PaperSerializer(paper, context={"request": request}).data,
+                    "render_state": render_to_display.state,
+                    "body": "",  # processed_render["body"],
+                    "links": processed_render["links"],
+                    "scripts": processed_render["scripts"],
+                    "styles": processed_render["styles"],
+                    "abstract": processed_render["abstract"],
+                    "first_image": processed_render["first_image"],
+                    "rendered": "",  # rendered,
+                }
+            )
 
         else:
             raise Exception(f"Unknown render state: {render_to_display.state}")
