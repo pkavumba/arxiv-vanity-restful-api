@@ -49,9 +49,11 @@ INSTALLED_APPS = [
     "arxiv_vanity.scraper",
     "rest_framework",
     "rest_framework_api_key",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  #  after SecurityMiddleware
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -64,6 +66,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "arxiv_vanity.urls"
 APPEND_SLASH = True
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
 
 TEMPLATES = [
     {

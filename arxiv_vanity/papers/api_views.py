@@ -23,14 +23,14 @@ from ..scraper.arxiv_ids import (
 from ..scraper.query import PaperNotFoundError
 
 
-class PaperViewSet(viewsets.ModelViewSet):
+class PaperViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     queryset = Paper.objects.all()
     serializer_class = PaperSerializer
 
 
-class RenderViewSet(viewsets.ModelViewSet):
+class RenderViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     queryset = Render.objects.all()
@@ -39,7 +39,9 @@ class RenderViewSet(viewsets.ModelViewSet):
     @action(detail=True, renderer_classes=[TemplateHTMLRenderer])
     def render(self, request, *args, **kwargs):
         force_render = "render" in request.GET
-        arxiv_id = "1708.06733"  # kwargs["arxiv_id"]
+        arxiv_id = request.query_params.get(
+            "arxiv_id", "1708.06733"
+        )  # kwargs["arxiv_id"]
 
         arxiv_id, version = remove_version_from_arxiv_id(arxiv_id)
         if version is not None:
@@ -67,7 +69,7 @@ class RenderViewSet(viewsets.ModelViewSet):
                 template_name="papers/api_paper_detail_not_renderable.html",
                 status=404,
             )
-            return res  # add_paper_cache_control(res, request)
+            return add_paper_cache_control(res, request)
         except TooManyRendersRunningError:
             res = Response(
                 {"paper": paper},
@@ -93,7 +95,7 @@ class RenderViewSet(viewsets.ModelViewSet):
                 template_name="papers/api_paper_detail_error.html",
                 status=500,
             )
-            return res  # add_paper_cache_control(res, request)
+            return add_paper_cache_control(res, request)
 
         elif render_to_display.state == Render.STATE_SUCCESS:
             processed_render = render_to_display.get_processed_render()
@@ -111,7 +113,7 @@ class RenderViewSet(viewsets.ModelViewSet):
                 },
                 template_name="papers/api_paper_detail.html",
             )
-            return res  # add_paper_cache_control(res, request)
+            return add_paper_cache_control(res, request)
 
         else:
             raise Exception(f"Unknown render state: {render_to_display.state}")
