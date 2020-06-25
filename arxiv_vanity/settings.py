@@ -196,9 +196,7 @@ if ENABLE_SSL:
 # Paper rendering
 # HACK: If image is set to blank string in environment, resolve default.
 # django-environ's defaults only work if envvar is actually unset
-ENGRAFO_IMAGE = (
-    env("ENGRAFO_IMAGE", default="") or "arxivvanity/engrafo:latest"
-)
+ENGRAFO_IMAGE = env("ENGRAFO_IMAGE", default="") or "arxivvanity/engrafo:latest"
 # The prefix to use for Engrafo webhooks
 ENGRAFO_WEBHOOK_URL_PREFIX = env(
     "ENGRAFO_WEBHOOK_URL_PREFIX", default="http://web:8000"
@@ -208,9 +206,7 @@ GROBID_URL = env("GROBID_URL", default="")
 ENGRAFO_SENTRY_DSN = env("ENGRAFO_SENTRY_DSN", default="")
 
 # Analytics
-GOOGLE_ANALYTICS_PROPERTY_ID = env(
-    "GOOGLE_ANALYTICS_PROPERTY_ID", default="UA-107304984-2"
-)
+GOOGLE_ANALYTICS_PROPERTY_ID = env("GOOGLE_ANALYTICS_PROPERTY_ID", default="")
 MIXPANEL_TOKEN = env("MIXPANEL_TOKEN", default="")
 
 # Paper feedback

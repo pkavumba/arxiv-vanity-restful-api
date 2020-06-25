@@ -1,0 +1,57 @@
+{% extends "api_base.html" %}
+
+{% block content %}
+  <div class="arxiv-vanity-wrapper paper-detail-status">
+    <div class="paper-detail-status-inner">
+      <div class="waiter-spinner my-5" style="height: 100px; position: relative"></div>
+      <p>This paper is rendering! Your browser will automatically refresh when it is finished. It should take less than a minute.</p>
+    </div>
+  </div>
+{% endblock %}
+{% block extra_js %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js" integrity="sha256-aB35laj7IZhLTx58xw/Gm1EKOoJJKZt6RY+bH1ReHxs=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js" integrity="sha256-PieqE0QdEDMppwXrTzSZQr6tWFX3W5KkyRVyF1zN3eg=" crossorigin="anonymous"></script>
+  <script>
+    function ArxivVanityWaiter(renderStateURL) {
+      this.renderStateURL = renderStateURL;
+    }
+    ArxivVanityWaiter.prototype.checkState = function() {
+      var _this = this;
+      fetch(this.renderStateURL)
+        .then(function(response) {
+          if (response.status != 200) {
+            throw new Error("Unexpected response. Status: " + response.status);
+          }
+          return response.json();
+        })
+        .then(function(res) {
+          if (res.state === "running" || res.state === "unstarted") {
+            _this.checkStateTimeout();
+          } else {
+            var url = window.location.toString();
+            // Remove query string
+            var query = url.split("?")[1];
+            url = url.split("?")[0];
+            if (query === "render") {
+              url += "?nocache";
+            }
+            window.location.replace(url);
+          }
+        })
+        .catch(function(error) {
+          console.error(error);
+          _this.checkStateTimeout();
+        });
+    };
+    ArxivVanityWaiter.prototype.checkStateTimeout = function() {
+      var _this = this;
+      setTimeout(function() { _this.checkState(); }, 2000);
+    };
+
+    window.arxivVanityWaiter = new ArxivVanityWaiter("{% url 'paper_render_state' paper.arxiv_id %}");
+    window.arxivVanityWaiter.checkState();
+
+    var spinner = new Spinner().spin();
+    document.querySelector(".waiter-spinner").appendChild(spinner.el);
+  </script>
+{% endblock %}
