@@ -39,7 +39,7 @@ class RenderViewSet(viewsets.ModelViewSet):
     @action(detail=True, renderer_classes=[TemplateHTMLRenderer])
     def render(self, request, *args, **kwargs):
         force_render = "render" in request.GET
-        arxiv_id = '1708.06733'  # kwargs["arxiv_id"]
+        arxiv_id = "1708.06733"  # kwargs["arxiv_id"]
 
         arxiv_id, version = remove_version_from_arxiv_id(arxiv_id)
         if version is not None:
@@ -72,7 +72,7 @@ class RenderViewSet(viewsets.ModelViewSet):
             res = Response(
                 {"paper": paper},
                 template_name="papers/api_paper_detail_too_many_renders.html",
-                status=503
+                status=503,
             )
             add_never_cache_headers(res)
             return res
@@ -82,14 +82,16 @@ class RenderViewSet(viewsets.ModelViewSet):
             res = Response(
                 {"paper": paper, "render": render_to_display},
                 template_name="papers/api_paper_detail_rendering.html",
-                status=503
+                status=503,
             )
             add_never_cache_headers(res)
             return res
 
         elif render_to_display.state == Render.STATE_FAILURE:
             res = Response(
-                request, template_name="papers/api_paper_detail_error.html", {"paper": paper}, status=500
+                {"paper": paper},
+                template_name="papers/api_paper_detail_error.html",
+                status=500,
             )
             return res  # add_paper_cache_control(res, request)
 
@@ -107,8 +109,7 @@ class RenderViewSet(viewsets.ModelViewSet):
                     "abstract": processed_render["abstract"],
                     "first_image": processed_render["first_image"],
                 },
-                template_name="papers/api_paper_detail.html"
-                
+                template_name="papers/api_paper_detail.html",
             )
             return res  # add_paper_cache_control(res, request)
 
