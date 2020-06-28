@@ -35,7 +35,7 @@ class PaperIsNotRenderable(APIException):
 
 class PaperRenderFailure(APIException):
     status_code = 503
-    default_detail = "paper render failur."
+    default_detail = "paper render failure."
     default_code = "paper_failure"
 
 
@@ -116,7 +116,7 @@ class RenderViewSet(viewsets.ReadOnlyModelViewSet):
             rendered = render_to_string(
                 "papers/api_paper_detail_error.html", {"paper": paper}
             )
-            raise PaperRenderFailure()  # return Response({"data": rendered})
+            raise PaperRenderFailure(rendered)  # return Response({"data": rendered})
 
         elif render_to_display.state == Render.STATE_SUCCESS:
             processed_render = render_to_display.get_processed_render()
