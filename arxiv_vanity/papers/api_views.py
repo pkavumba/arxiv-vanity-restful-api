@@ -138,13 +138,14 @@ class RenderViewSet(viewsets.ReadOnlyModelViewSet):
                 {
                     "paper": PaperSerializer(paper, context={"request": request}).data,
                     "render_state": render_to_display.state,
-                    "body": processed_render["body"],
-                    "links": processed_render["links"],
-                    "scripts": processed_render["scripts"],
-                    "styles": processed_render["styles"],
-                    "abstract": processed_render["abstract"],
-                    "first_image": processed_render["first_image"],
                     "rendered": rendered,
+                    # Reduce payload use rendered instead. uncomment if needed
+                    # "body": processed_render["body"],
+                    # "links": processed_render["links"],
+                    # "scripts": processed_render["scripts"],
+                    # "styles": processed_render["styles"],
+                    # "abstract": processed_render["abstract"],
+                    # "first_image": processed_render["first_image"],
                 }
             )
             return add_paper_cache_control(res, request)
