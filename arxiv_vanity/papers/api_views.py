@@ -134,7 +134,7 @@ class RenderViewSet(viewsets.ReadOnlyModelViewSet):
                 },
             )
 
-            return Response(
+            res = Response(
                 {
                     "paper": PaperSerializer(paper, context={"request": request}).data,
                     "render_state": render_to_display.state,
@@ -147,6 +147,7 @@ class RenderViewSet(viewsets.ReadOnlyModelViewSet):
                     "rendered": rendered,
                 }
             )
+            return add_paper_cache_control(res, request)
 
         else:
             raise Exception(f"Unknown render state: {render_to_display.state}")
