@@ -107,12 +107,8 @@ class RenderViewSet(viewsets.ReadOnlyModelViewSet):
             )
             return Response(
                 {
-                    {
-                        "render_state": render_to_display.state,
-                        "paper": PaperSerializer(
-                            paper, context={"request": request}
-                        ).data,
-                    }
+                    "render_state": render_to_display.state,
+                    "paper": PaperSerializer(paper, context={"request": request}).data,
                 }
             )
 
