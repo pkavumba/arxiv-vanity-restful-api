@@ -33,6 +33,12 @@ class PaperIsNotRenderable(APIException):
     default_code = "paper_unrenderable"
 
 
+class PaperRenderFailure(APIException):
+    status_code = 503
+    default_detail = "paper render failur."
+    default_code = "paper_failure"
+
+
 class TooManyRendersRunning(APIException):
     status_code = 503
     default_detail = "Service temporarily unavailable, try again later."
@@ -99,13 +105,22 @@ class RenderViewSet(viewsets.ReadOnlyModelViewSet):
                 "papers/api_paper_detail_rendering.html",
                 {"paper": paper, "render": render_to_display},
             )
-            return Response({"data": rendered})
+            return Response(
+                {
+                    {
+                        "render_state": render_to_display.state,
+                        "paper": PaperSerializer(
+                            paper, context={"request": request}
+                        ).data,
+                    }
+                }
+            )
 
         elif render_to_display.state == Render.STATE_FAILURE:
             rendered = render_to_string(
                 "papers/api_paper_detail_error.html", {"paper": paper}
             )
-            return Response({"data": rendered})
+            raise PaperRenderFailure()  # return Response({"data": rendered})
 
         elif render_to_display.state == Render.STATE_SUCCESS:
             processed_render = render_to_display.get_processed_render()
